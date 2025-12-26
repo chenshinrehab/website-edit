@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>進階衛教內容生成器 - 宸新復健科</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background: #f8fafc; }
+        .input-label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #1e293b; font-size: 0.95rem; }
+        .input-field { 
+            width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; 
+            margin-bottom: 1rem; background: #fff; transition: all 0.2s;
+        }
+        .input-field:focus { border-color: #3b82f6; outline: none; ring: 2px solid #bfdbfe; }
+        .code-box {
+            background: #1e293b; color: #a5b4fc; padding: 1.5rem; border-radius: 0.75rem;
+            font-family: monospace; white-space: pre-wrap; font-size: 0.85rem; height: 250px; overflow-y: auto; line-height: 1.5;
+        }
+        .step-badge {
+            background: #3b82f6; color: white; width: 24px; height: 24px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-slate-800 mb-2"><i class="fa-solid fa-file-medical text-blue-600 mr-2"></i> 衛教內容生成器 V2</h1>
+            <p class="text-slate-500">免寫程式，輕鬆建立疾病卡片與詳細介紹頁面</p>
+        </div>
+        
+        <form id="generatorForm" class="space-y-8">
+            
+            <!-- Step 1: 基本設定 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                    <span class="step-badge">1</span> 基本設定
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="input-label">分類 (Category)</label>
+                        <select id="category" class="input-field bg-slate-50">
+                            <option value="treatments">治療方式 (Treatments)</option>
+                            <option value="spine">脊椎問題 (Spine)</option>
+                            <option value="shoulder">肩膀問題 (Shoulder)</option>
+                            <option value="elbow">手肘問題 (Elbow)</option>
+                            <option value="hand">手部問題 (Hand)</option>
+                            <option value="hip">髖臀問題 (Hip)</option>
+                            <option value="knee">膝蓋關節 (Knee)</option>
+                            <option value="ankle">足踝問題 (Ankle)</option>
+                            <option value="weight-bone">減重與骨齡 (Weight & Bone)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">唯一識別碼 (ID) <span class="text-red-500">*必填</span></label>
+                        <input type="text" id="diseaseId" class="input-field" placeholder="例如: tennis-elbow (請用英文小寫，不要重複)">
+                        <p class="text-xs text-slate-400 -mt-3">這會變成網址的一部分，例如 #detail-tennis-elbow</p>
+                    </div>
+                    <div>
+                        <label class="input-label">主標題 (中文名稱)</label>
+                        <input type="text" id="title" class="input-field" placeholder="例如: 網球肘">
+                    </div>
+                    <div>
+                        <label class="input-label">副標題 (英文學名或補充)</label>
+                        <input type="text" id="subtitle" class="input-field" placeholder="例如: Lateral Epicondylitis">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: 列表卡片內容 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                    <span class="step-badge">2</span> 列表卡片內容 (顯示在總覽頁)
+                </h3>
+                <div>
+                    <label class="input-label">簡短描述 (1-2句話)</label>
+                    <textarea id="brief" rows="2" class="input-field" placeholder="例如: 手肘外側疼痛，主要是伸腕肌腱發炎。"></textarea>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="md:col-span-1">
+                        <label class="input-label">重點標籤 (黃/綠色小標)</label>
+                        <input type="text" id="highlightTitle" class="input-field" value="重點" placeholder="例如: 治療重點">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="input-label">重點內容</label>
+                        <input type="text" id="highlight" class="input-field" placeholder="例如: 休息並配戴護具，嚴重時PRP注射。">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: 詳細頁面內容 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                    <span class="step-badge">3</span> 詳細頁面內容 (點進去後)
+                </h3>
+                <div>
+                    <label class="input-label">完整介紹 (詳細說明成因、好發族群等)</label>
+                    <textarea id="fullDesc" rows="4" class="input-field" placeholder="請輸入完整的疾病介紹，按下 Enter 換行會直接反應在網頁上..."></textarea>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <label class="input-label text-blue-600">左欄 (通常放症狀)</label>
+                        <input type="text" id="leftColTitle" class="input-field" value="常見症狀">
+                        <label class="text-xs font-bold text-slate-500 mb-2 block">內容 (一行一點，自動變列表)</label>
+                        <textarea id="leftColContent" rows="5" class="input-field" placeholder="手肘外側有壓痛點&#10;擰毛巾時無力&#10;握東西會痛"></textarea>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <label class="input-label text-green-600">右欄 (通常放治療)</label>
+                        <input type="text" id="rightColTitle" class="input-field" value="治療建議">
+                        <label class="text-xs font-bold text-slate-500 mb-2 block">內容 (一行一點，自動變列表)</label>
+                        <textarea id="rightColContent" rows="5" class="input-field" placeholder="急性期冰敷休息&#10;配戴專用護具&#10;增生療法注射"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: 多媒體區塊 (圖片/影片) -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center justify-between">
+                    <span><span class="step-badge">4</span> 底部多媒體區塊 (圖片/影片)</span>
+                    <button type="button" onclick="addMediaBlock()" class="text-sm bg-blue-100 text-blue-600 px-3 py-1 rounded-lg hover:bg-blue-200 transition">
+                        <i class="fa-solid fa-plus"></i> 新增一組
+                    </button>
+                </h3>
+                
+                <div id="mediaContainer" class="space-y-4">
+                    <!-- Default one block -->
+                    <div class="media-block bg-slate-50 p-4 rounded-xl border border-slate-200 relative">
+                        <div class="grid md:grid-cols-12 gap-4 items-start">
+                            <div class="md:col-span-3">
+                                <label class="text-xs font-bold text-slate-500 mb-1 block">類型</label>
+                                <select class="media-type input-field mb-0 text-sm">
+                                    <option value="image">圖片 (Image URL)</option>
+                                    <option value="youtube">YouTube (影片連結)</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-5">
+                                <label class="text-xs font-bold text-slate-500 mb-1 block">連結 (URL)</label>
+                                <input type="text" class="media-url input-field mb-0 text-sm" placeholder="貼上圖片網址 或 YouTube 連結">
+                            </div>
+                            <div class="md:col-span-4">
+                                <label class="text-xs font-bold text-slate-500 mb-1 block">下方說明文字</label>
+                                <input type="text" class="media-caption input-field mb-0 text-sm" placeholder="例如: 復健動作示意圖">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-2 text-right">* YouTube 只要貼上完整網址 (如 https://youtu.be/...)，系統會自動處理。</p>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="sticky bottom-4 z-50 text-center">
+                <button type="button" onclick="generateCode()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-12 rounded-full shadow-2xl transition-all transform hover:scale-105 hover:-translate-y-1 text-lg border-2 border-white/20 backdrop-blur">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 生成網頁程式碼
+                </button>
+            </div>
+
+        </form>
+
+        <!-- Output Area -->
+        <div id="outputArea" class="hidden mt-12 space-y-12 pb-20 animate-fade-in">
+            
+            <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-xl shadow-sm">
+                <h3 class="text-green-800 font-bold text-lg mb-2"><i class="fa-solid fa-check-circle"></i> 生成成功！請依照以下步驟貼上代碼：</h3>
+                <p class="text-green-700 text-sm">請打開您的 <code>dr_lin_rehab.html</code> 檔案進行編輯。</p>
+            </div>
+
+            <!-- Part 1 -->
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-xl font-bold text-slate-800"><span class="bg-slate-800 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">1</span> 複製卡片代碼 (Grid Item)</h3>
+                    <button onclick="copyToClipboard('cardCode')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-1.5 rounded-lg text-sm font-bold transition"><i class="fa-regular fa-copy mr-1"></i> 複製代碼</button>
+                </div>
+                <p class="text-sm text-slate-500 mb-3 bg-white p-3 rounded border border-slate-200">
+                    <i class="fa-solid fa-arrow-right text-blue-500"></i> 
+                    請在網頁中搜尋 <code>id="<span id="guideCategory1">...</span>"</code>，找到該區塊下的 <code>&lt;div class="grid ..."&gt;</code>，把代碼貼在該 div 裡面。
+                </p>
+                <textarea id="cardCode" class="code-box w-full" readonly></textarea>
+            </div>
+
+            <!-- Part 2 -->
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-xl font-bold text-slate-800"><span class="bg-slate-800 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">2</span> 複製詳細頁代碼 (Detail Section)</h3>
+                    <button onclick="copyToClipboard('detailCode')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-1.5 rounded-lg text-sm font-bold transition"><i class="fa-regular fa-copy mr-1"></i> 複製代碼</button>
+                </div>
+                <p class="text-sm text-slate-500 mb-3 bg-white p-3 rounded border border-slate-200">
+                    <i class="fa-solid fa-arrow-right text-blue-500"></i> 
+                    請貼在網頁的最下方，也就是 <code>&lt;!-- ==================== DETAILED VIEWS ==================== --&gt;</code> 這個標記之後的位置。
+                </p>
+                <textarea id="detailCode" class="code-box w-full" readonly></textarea>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function addMediaBlock() {
+            const container = document.getElementById('mediaContainer');
+            const div = document.createElement('div');
+            div.className = 'media-block bg-slate-50 p-4 rounded-xl border border-slate-200 relative mt-4';
+            div.innerHTML = `
+                <button type="button" onclick="this.closest('.media-block').remove()" class="absolute top-2 right-2 text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                <div class="grid md:grid-cols-12 gap-4 items-start">
+                    <div class="md:col-span-3">
+                        <label class="text-xs font-bold text-slate-500 mb-1 block">類型</label>
+                        <select class="media-type input-field mb-0 text-sm">
+                            <option value="image">圖片 (Image URL)</option>
+                            <option value="youtube">YouTube (影片連結)</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-5">
+                        <label class="text-xs font-bold text-slate-500 mb-1 block">連結 (URL)</label>
+                        <input type="text" class="media-url input-field mb-0 text-sm" placeholder="貼上網址...">
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="text-xs font-bold text-slate-500 mb-1 block">下方說明文字</label>
+                        <input type="text" class="media-caption input-field mb-0 text-sm" placeholder="說明文字...">
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function getYouTubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function generateCode() {
+            // Get inputs
+            const id = document.getElementById('diseaseId').value.trim();
+            if(!id) { alert("請填寫唯一識別碼 (ID)！"); return; }
+            
+            const category = document.getElementById('category').value;
+            const title = document.getElementById('title').value;
+            const subtitle = document.getElementById('subtitle').value;
+            const brief = document.getElementById('brief').value;
+            const highlight = document.getElementById('highlight').value;
+            const highlightTitle = document.getElementById('highlightTitle').value || '重點';
+            
+            // Handle newlines for full description: replace \n with <br>
+            const fullDesc = document.getElementById('fullDesc').value.replace(/\n/g, '<br>');
+            
+            const leftTitle = document.getElementById('leftColTitle').value;
+            // Convert newline to <li>
+            const leftRaw = document.getElementById('leftColContent').value;
+            const leftList = leftRaw.split('\n').filter(line => line.trim() !== '').map(line => `<li>${line}</li>`).join('');
+
+            const rightTitle = document.getElementById('rightColTitle').value;
+            const rightRaw = document.getElementById('rightColContent').value;
+            const rightList = rightRaw.split('\n').filter(line => line.trim() !== '').map(line => `<li>${line}</li>`).join('');
+
+            // Process Media Blocks
+            let mediaHtml = '';
+            document.querySelectorAll('.media-block').forEach(block => {
+                const type = block.querySelector('.media-type').value;
+                const url = block.querySelector('.media-url').value.trim();
+                const caption = block.querySelector('.media-caption').value;
+
+                if(url) {
+                    if (type === 'image') {
+                        // Added md:w-2/3 md:mx-auto to constrain width on desktop
+                        mediaHtml += `<div class="mb-8 text-center"><img src="${url}" alt="${caption}" class="w-full md:w-2/3 md:mx-auto h-auto rounded-lg mb-2 shadow-md">${caption ? `<p class="text-slate-300 text-base mt-2">${caption}</p>` : ''}</div>`;
+                    } else if (type === 'youtube') {
+                        const ytid = getYouTubeId(url);
+                        if(ytid) {
+                            // Added wrapper div with md:w-2/3 md:mx-auto to constrain width on desktop
+                            mediaHtml += `<div class="mb-8 text-center"><div class="w-full md:w-2/3 md:mx-auto"><div class="relative w-full pb-[56.25%] mb-2"><iframe src="https://www.youtube.com/embed/${ytid}" title="YouTube video" class="absolute top-0 left-0 w-full h-full rounded-lg shadow-md" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>${caption ? `<p class="text-slate-300 text-base mt-2">${caption}</p>` : ''}</div>`;
+                        }
+                    }
+                }
+            });
+
+            // 1. Generate Card HTML (Compact)
+            const cardHtml = `<article onclick="openDetail('${id}')" class="bg-slate-800/50 backdrop-blur border border-slate-700 p-6 rounded-xl hover:border-cyan-500/50 transition-all hover:shadow-neon group hover:-translate-y-1 cursor-pointer"><h3 class="text-xl font-bold text-cyan-400 mb-3 group-hover:text-cyan-300">${title}</h3><p class="text-slate-400 text-sm mb-4 leading-relaxed">${brief}</p><div class="bg-slate-900/50 p-3 rounded border-l-2 border-green-500"><h4 class="font-semibold text-slate-200 mb-1 text-sm">${highlightTitle}</h4><p class="text-slate-400 text-sm">${highlight}</p></div></article>`;
+
+            // 2. Generate Detail HTML (Compact)
+            const detailHtml = `<!-- ${title} Detail Section --><section id="detail-${id}" class="tab-content hidden fade-in"><button onclick="switchTab('${category}')" class="mb-6 flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"><i class="fa-solid fa-arrow-left"></i> 返回列表</button><div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl overflow-hidden shadow-2xl p-6 md:p-8"><!-- Header --><div class="mb-8 border-l-4 border-cyan-500 pl-4 bg-gradient-to-r from-slate-900/50 to-transparent py-4 rounded-r-xl flex items-center gap-6"><div class="hidden md:block bg-white p-1 rounded-lg shrink-0"><img class="qr-code-img w-20 h-20" src="" alt="本頁QR Code"></div><div><h1 class="text-3xl md:text-4xl font-bold font-tech text-white mb-1">${title} <span class="text-lg text-cyan-400 block md:inline md:ml-2">${subtitle}</span></h1></div></div><!-- Desc --><div class="text-slate-300 leading-relaxed text-lg mb-8 border-b border-slate-700 pb-6">${fullDesc}</div><!-- Grid --><div class="grid md:grid-cols-2 gap-8 mb-8"><div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700"><h4 class="text-xl font-bold text-white mb-4 border-b border-slate-600 pb-2">${leftTitle}</h4><ul class="space-y-3 text-slate-300 list-disc list-inside">${leftList}</ul></div><div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700"><h4 class="text-xl font-bold text-white mb-4 border-b border-slate-600 pb-2">${rightTitle}</h4><ul class="space-y-3 text-slate-300 list-disc list-inside">${rightList}</ul></div></div><!-- Media -->${mediaHtml ? `<div class="space-y-6">${mediaHtml}</div>` : ''}</div></section>`;
+
+            // Fill textareas
+            document.getElementById('cardCode').value = cardHtml.trim();
+            document.getElementById('detailCode').value = detailHtml.trim();
+            document.getElementById('guideCategory1').innerText = category;
+            
+            // Show output
+            document.getElementById('outputArea').classList.remove('hidden');
+            document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyToClipboard(elementId) {
+            const copyText = document.getElementById(elementId);
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                const btn = document.querySelector(`button[onclick="copyToClipboard('${elementId}')"]`);
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> 已複製';
+                btn.classList.add('bg-green-200', 'text-green-800');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-green-200', 'text-green-800');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
