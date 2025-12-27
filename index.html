@@ -146,7 +146,7 @@
                             </div>
                             <div class="md:col-span-4">
                                 <label class="text-xs font-bold text-slate-500 mb-1 block">下方說明文字</label>
-                                <input type="text" class="media-caption input-field mb-0 text-sm" placeholder="例如: 復健動作示意圖">
+                                <input type="text" class="media-caption input-field mb-0 text-sm" placeholder="說明文字...">
                             </div>
                         </div>
                     </div>
@@ -252,11 +252,11 @@
             const leftTitle = document.getElementById('leftColTitle').value;
             // Convert newline to <li>
             const leftRaw = document.getElementById('leftColContent').value;
-            const leftList = leftRaw.split('\n').filter(line => line.trim() !== '').map(line => `<li>${line}</li>`).join('');
+            const leftList = leftRaw.split('\n').filter(line => line.trim() !== '').map(line => `<li>${line}</li>`).join('\n                    ');
 
             const rightTitle = document.getElementById('rightColTitle').value;
             const rightRaw = document.getElementById('rightColContent').value;
-            const rightList = rightRaw.split('\n').filter(line => line.trim() !== '').map(line => `<li>${line}</li>`).join('');
+            const rightList = rightRaw.split('\n').filter(line => line.trim() !== '').map(line => `<li>${line}</li>`).join('\n                    ');
 
             // Process Media Blocks
             let mediaHtml = '';
@@ -268,22 +268,85 @@
                 if(url) {
                     if (type === 'image') {
                         // Added md:w-2/3 md:mx-auto to constrain width on desktop
-                        mediaHtml += `<div class="mb-8 text-center"><img src="${url}" alt="${caption}" class="w-full md:w-2/3 md:mx-auto h-auto rounded-lg mb-2 shadow-md">${caption ? `<p class="text-slate-300 text-base mt-2">${caption}</p>` : ''}</div>`;
+                        mediaHtml += `
+        <div class="mb-8 text-center">
+            <img src="${url}" alt="${caption}" class="w-full md:w-2/3 md:mx-auto h-auto rounded-lg mb-2 shadow-md">
+            ${caption ? `<p class="text-slate-300 text-base mt-2">${caption}</p>` : ''}
+        </div>`;
                     } else if (type === 'youtube') {
                         const ytid = getYouTubeId(url);
                         if(ytid) {
                             // Added wrapper div with md:w-2/3 md:mx-auto to constrain width on desktop
-                            mediaHtml += `<div class="mb-8 text-center"><div class="w-full md:w-2/3 md:mx-auto"><div class="relative w-full pb-[56.25%] mb-2"><iframe src="https://www.youtube.com/embed/${ytid}" title="YouTube video" class="absolute top-0 left-0 w-full h-full rounded-lg shadow-md" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>${caption ? `<p class="text-slate-300 text-base mt-2">${caption}</p>` : ''}</div>`;
+                            mediaHtml += `
+        <div class="mb-8 text-center">
+            <div class="w-full md:w-2/3 md:mx-auto">
+                <div class="relative w-full pb-[56.25%] mb-2">
+                    <iframe src="https://www.youtube.com/embed/${ytid}" title="YouTube video" class="absolute top-0 left-0 w-full h-full rounded-lg shadow-md" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+            ${caption ? `<p class="text-slate-300 text-base mt-2">${caption}</p>` : ''}
+        </div>`;
                         }
                     }
                 }
             });
 
-            // 1. Generate Card HTML (Compact)
-            const cardHtml = `<article onclick="openDetail('${id}')" class="bg-slate-800/50 backdrop-blur border border-slate-700 p-6 rounded-xl hover:border-cyan-500/50 transition-all hover:shadow-neon group hover:-translate-y-1 cursor-pointer"><h3 class="text-xl font-bold text-cyan-400 mb-3 group-hover:text-cyan-300">${title}</h3><p class="text-slate-400 text-sm mb-4 leading-relaxed">${brief}</p><div class="bg-slate-900/50 p-3 rounded border-l-2 border-green-500"><h4 class="font-semibold text-slate-200 mb-1 text-sm">${highlightTitle}</h4><p class="text-slate-400 text-sm">${highlight}</p></div></article>`;
+            // 1. Generate Card HTML (Formatted)
+            const cardHtml = `
+<!-- ${title} Card -->
+<article onclick="openDetail('${id}')" class="bg-slate-800/50 backdrop-blur border border-slate-700 p-6 rounded-xl hover:border-cyan-500/50 transition-all hover:shadow-neon group hover:-translate-y-1 cursor-pointer">
+    <h3 class="text-xl font-bold text-cyan-400 mb-3 group-hover:text-cyan-300">${title}</h3>
+    <p class="text-slate-400 text-sm mb-4 leading-relaxed">${brief}</p>
+    <div class="bg-slate-900/50 p-3 rounded border-l-2 border-green-500">
+        <h4 class="font-semibold text-slate-200 mb-1 text-sm">${highlightTitle}</h4>
+        <p class="text-slate-400 text-sm">${highlight}</p>
+    </div>
+</article>`;
 
-            // 2. Generate Detail HTML (Compact)
-            const detailHtml = `<!-- ${title} Detail Section --><section id="detail-${id}" class="tab-content hidden fade-in"><button onclick="switchTab('${category}')" class="mb-6 flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"><i class="fa-solid fa-arrow-left"></i> 返回列表</button><div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl overflow-hidden shadow-2xl p-6 md:p-8"><!-- Header --><div class="mb-8 border-l-4 border-cyan-500 pl-4 bg-gradient-to-r from-slate-900/50 to-transparent py-4 rounded-r-xl flex items-center gap-6"><div class="hidden md:block bg-white p-1 rounded-lg shrink-0"><img class="qr-code-img w-20 h-20" src="" alt="本頁QR Code"></div><div><h1 class="text-3xl md:text-4xl font-bold font-tech text-white mb-1">${title} <span class="text-lg text-cyan-400 block md:inline md:ml-2">${subtitle}</span></h1></div></div><!-- Desc --><div class="text-slate-300 leading-relaxed text-lg mb-8 border-b border-slate-700 pb-6">${fullDesc}</div><!-- Grid --><div class="grid md:grid-cols-2 gap-8 mb-8"><div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700"><h4 class="text-xl font-bold text-white mb-4 border-b border-slate-600 pb-2">${leftTitle}</h4><ul class="space-y-3 text-slate-300 list-disc list-inside">${leftList}</ul></div><div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700"><h4 class="text-xl font-bold text-white mb-4 border-b border-slate-600 pb-2">${rightTitle}</h4><ul class="space-y-3 text-slate-300 list-disc list-inside">${rightList}</ul></div></div><!-- Media -->${mediaHtml ? `<div class="space-y-6">${mediaHtml}</div>` : ''}</div></section>`;
+            // 2. Generate Detail HTML (Formatted)
+            const detailHtml = `
+<!-- ${title} Detail Section -->
+<section id="detail-${id}" class="tab-content hidden fade-in">
+    <button onclick="switchTab('${category}')" class="mb-6 flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors">
+        <i class="fa-solid fa-arrow-left"></i> 返回列表
+    </button>
+    
+    <div class="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-2xl overflow-hidden shadow-2xl p-6 md:p-8">
+        <!-- Header -->
+        <div class="mb-8 border-l-4 border-cyan-500 pl-4 bg-gradient-to-r from-slate-900/50 to-transparent py-4 rounded-r-xl flex items-center gap-6">
+            <div class="hidden md:block bg-white p-1 rounded-lg shrink-0">
+                <img class="qr-code-img w-20 h-20" src="" alt="本頁QR Code">
+            </div>
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold font-tech text-white mb-1">${title} <span class="text-lg text-cyan-400 block md:inline md:ml-2">${subtitle}</span></h1>
+            </div>
+        </div>
+
+        <!-- Desc -->
+        <div class="text-slate-300 leading-relaxed text-lg mb-8 border-b border-slate-700 pb-6">
+            ${fullDesc}
+        </div>
+
+        <!-- Grid -->
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                <h4 class="text-xl font-bold text-white mb-4 border-b border-slate-600 pb-2">${leftTitle}</h4>
+                <ul class="space-y-3 text-slate-300 list-disc list-inside">
+                    ${leftList}
+                </ul>
+            </div>
+            <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                <h4 class="text-xl font-bold text-white mb-4 border-b border-slate-600 pb-2">${rightTitle}</h4>
+                <ul class="space-y-3 text-slate-300 list-disc list-inside">
+                    ${rightList}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Media -->
+        ${mediaHtml ? `<div class="space-y-6">${mediaHtml}</div>` : ''}
+    </div>
+</section>`;
 
             // Fill textareas
             document.getElementById('cardCode').value = cardHtml.trim();
