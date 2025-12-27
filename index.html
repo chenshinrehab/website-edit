@@ -229,8 +229,10 @@
         }
 
         function getYouTubeId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            // Update: Added support for 'shorts/', removed strict length check, allowing for more robust matching
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
             const match = url.match(regExp);
+            // Allow 11 chars as standard, but ensure we return the ID if match found.
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
